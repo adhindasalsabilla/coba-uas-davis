@@ -4,3 +4,4 @@ seaborn
 numpy
 sqlalchemy
 streamlit
+mysql-connector-python
