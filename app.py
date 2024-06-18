@@ -155,20 +155,17 @@ def plot_product_category_name_count(engine):
 db_connection_str = 'mysql+mysqlconnector://root:@localhost:3306/dump-dw_aw-202403050806'
 engine = create_engine(db_connection_str)
 
-# Menampilkan grafik di Streamlit
-st.title('Data Visualizations')
+# Streamlit app
+st.title('Data Visualization Dashboard')
+
+st.header('Standard Cost per Product per Month')
 plot_standard_cost_per_product_per_month(engine)
+
+st.header('Distribution of Department Name by Geography')
 plot_distribution_of_department_by_geography(engine)
+
+st.header('Customer Education Composition by Country')
 plot_customer_education_composition_by_country(engine)
+
+st.header('Product Category Name Count')
 plot_product_category_name_count(engine)
-
- 
-
-  
-
- 
-
-
-
-   
- 
