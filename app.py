@@ -152,8 +152,7 @@ def plot_product_category_name_count(engine):
     st.pyplot(plt)
 
 # Buat koneksi ke database
-db_connection_str = 'mysql+mysqlconnector://root:@localhost:3306/dump-dw_aw-202403050806'
-engine = create_engine(db_connection_str)
+db_connection_str = 'mysql+mysqlconnector://root:password@localhost:3306/dump-dw_aw-202403050806
 
 # Streamlit app
 st.title('Data Visualization Dashboard')
@@ -169,3 +168,12 @@ plot_customer_education_composition_by_country(engine)
 
 st.header('Product Category Name Count')
 plot_product_category_name_count(engine)
+
+
+   
+   
+
+ 
+
+   
+ 
