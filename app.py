@@ -6,9 +6,6 @@ import mysql.connector
 from sqlalchemy import create_engine
 import numpy as np
 
-# Dapatkan informasi koneksi MySQL
-db_config = secrets["mysql"]
-
 # Ekstrak informasi koneksi
 host = db_config["host"]
 port = db_config["port"]
