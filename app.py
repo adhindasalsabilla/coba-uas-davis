@@ -15,13 +15,13 @@ port = db_config["port"]
 database = db_config["database"]
 
 # Membuat koneksi
-    dataBase = mysql.connector.connect(
-        host="kubela.id",
-        user="davis2024irwan",
-        passwd="wh451n9m@ch1n3",
-        port=3306,
-        database="aw"
-    )
+dataBase = mysql.connector.connect(
+    host=host,
+    user=user,
+    passwd=password,
+    port=port,
+    database=database
+)
 
 # For debugging purposes (optional, remove in production)
 st.write("DB username:", user)
@@ -139,7 +139,7 @@ def plot_product_category_name_count(engine):
     st.pyplot(plt)
 
 # Create a connection to the database using SQLAlchemy
-db_connection_str = f'mysql+mysqlconnector://{user}:{password}@{host}:{port}/{database}'
+db_connection_str = f'mysql+mysqlconnector://root:@localhost:3306/dump-dw_aw-202403050806'
 engine = create_engine(db_connection_str)
 
 # Streamlit app
