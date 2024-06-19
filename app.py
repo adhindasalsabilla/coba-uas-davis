@@ -6,6 +6,33 @@ import mysql.connector
 from sqlalchemy import create_engine
 import numpy as np
 
+# Dapatkan informasi koneksi MySQL
+db_config = secrets["mysql"]
+
+# Ekstrak informasi koneksi
+host = db_config["host"]
+port = db_config["port"]
+user = secrets["db_username"]
+password = secrets["db_password"]
+database = db_config["database"]
+# =================================
+# user = st.secrets["db_username"]
+# password = st.secrets["db_password"]
+# host = st.secrets["mysql"]["host"]
+# port = st.secrets["mysql"]["port"]
+# database = st.secrets["mysql"]["database"]
+
+conn = mysql.connector.connect(
+        host=host,
+        port=int(port),
+        user=user,
+        password=password,
+        db=database
+    )
+
+st.write("DB username:", user)
+st.write("DB password:", password)
+
 # Function to create the first chart
 def plot_standard_cost_per_product_per_month(engine):
     # Ambil data dari tabel dimproduct
