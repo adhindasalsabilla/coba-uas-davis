@@ -6,7 +6,7 @@ import mysql.connector
 from sqlalchemy import create_engine
 import numpy as np
 
-# Pastikan kita mendapatkan konfigurasi database dari secrets
+# Ensure we get database configuration from secrets
 db_config = st.secrets["mysql"]
 user = db_config["user"]
 password = db_config["password"]
@@ -14,49 +14,39 @@ host = db_config["host"]
 port = db_config["port"]
 database = db_config["database"]
 
-# Buat koneksi ke database menggunakan mysql.connector
-conn = mysql.connector.connect(
-    host=host,
-    port=int(port),
-    user=user,
-    password=password,
-    database=database
-)
+# Membuat koneksi
+    dataBase = mysql.connector.connect(
+        host="kubela.id",
+        user="davis2024irwan",
+        passwd="wh451n9m@ch1n3",
+        port=3306,
+        database="aw"
+    )
 
+# For debugging purposes (optional, remove in production)
 st.write("DB username:", user)
 st.write("DB password:", password)
 
-# Fungsi untuk membuat grafik pertama
+# Function to plot Standard Cost per Product per Month
 def plot_standard_cost_per_product_per_month(engine):
-    # Ambil data dari tabel dimproduct
     dimproduct_query = 'SELECT ProductKey, EnglishProductName, StandardCost FROM dimproduct'
     dimproduct = pd.read_sql(dimproduct_query, engine)
 
-    # Ambil data dari tabel dimtime
     dimtime_query = 'SELECT TimeKey, EnglishMonthName FROM dimtime'
     dimtime = pd.read_sql(dimtime_query, engine)
 
-    # Ambil data dari tabel factinternetsales
     factinternetsales_query = 'SELECT ProductKey, OrderDateKey, SalesAmount FROM factinternetsales'
     factinternetsales = pd.read_sql(factinternetsales_query, engine)
 
-    # Menggabungkan factinternetsales dengan dimtime untuk mendapatkan nama bulan
     merged_data_time = pd.merge(factinternetsales, dimtime, left_on='OrderDateKey', right_on='TimeKey')
-
-    # Menggabungkan hasil dengan dimproduct untuk mendapatkan detail produk
     merged_data = pd.merge(merged_data_time, dimproduct, on='ProductKey')
 
-    # Agregasi data untuk mendapatkan total penjualan per produk per bulan
     agg_data = merged_data.groupby(['EnglishMonthName', 'EnglishProductName'])['StandardCost'].mean().reset_index()
-
-    # Pivot data untuk membuat format yang sesuai untuk line chart
     pivot_data = agg_data.pivot(index='EnglishMonthName', columns='EnglishProductName', values='StandardCost')
 
-    # Urutkan bulan secara kronologis
     months_order = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
     pivot_data = pivot_data.reindex(months_order)
 
-    # Buat Line Chart
     plt.figure(figsize=(14, 8))
     for column in pivot_data.columns:
         plt.plot(pivot_data.index, pivot_data[column], marker='o', label=column)
@@ -69,22 +59,18 @@ def plot_standard_cost_per_product_per_month(engine):
     plt.xticks(rotation=45)
     st.pyplot(plt)
 
-# Fungsi untuk membuat grafik kedua
+# Function to plot Distribution of Department by Geography
 def plot_distribution_of_department_by_geography(engine):
-    # Ambil data dari tabel dimemployee
     dimemployee_query = 'SELECT EmployeeKey, DepartmentName, Title FROM dimemployee'
     dimemployee = pd.read_sql(dimemployee_query, engine)
 
-    # Ambil data dari tabel dimgeography
     dimgeography_query = 'SELECT GeographyKey, EnglishCountryRegionName FROM dimgeography'
     dimgeography = pd.read_sql(dimgeography_query, engine)
 
-    # Misalkan kita tambahkan data geografis ke data karyawan secara acak hanya untuk visualisasi
-    np.random.seed(42)  # Untuk hasil yang konsisten
+    np.random.seed(42)
     random_geographies = np.random.choice(dimgeography['EnglishCountryRegionName'], len(dimemployee))
     dimemployee['EnglishCountryRegionName'] = random_geographies
 
-    # Buat Count Plot menggunakan Seaborn untuk menangani data kategorikal
     plt.figure(figsize=(14, 8))
     sns.countplot(data=dimemployee, x='DepartmentName', hue='EnglishCountryRegionName')
     plt.xlabel('Department Name')
@@ -95,68 +81,48 @@ def plot_distribution_of_department_by_geography(engine):
     plt.legend(title='Geography')
     st.pyplot(plt)
 
-# Fungsi untuk membuat grafik ketiga
+# Function to plot Customer Education Composition by Country
 def plot_customer_education_composition_by_country(engine):
-    # Ambil data dari tabel dimcustomer
     dimcustomer_query = 'SELECT CustomerKey, EnglishEducation, GeographyKey FROM dimcustomer'
     dimcustomer = pd.read_sql(dimcustomer_query, engine)
 
-    # Ambil data dari tabel dimgeography
     dimgeography_query = 'SELECT GeographyKey, EnglishCountryRegionName FROM dimgeography'
     dimgeography = pd.read_sql(dimgeography_query, engine)
 
-    # Menggabungkan data berdasarkan GeographyKey
     merged_data = pd.merge(dimcustomer, dimgeography, on='GeographyKey')
-
-    # Hitung jumlah customer berdasarkan pendidikan dan negara
     composition_data = merged_data.groupby(['EnglishCountryRegionName', 'EnglishEducation']).size().unstack()
 
-    # Menyiapkan data untuk Donut Chart
     country = composition_data.index
     education_levels = composition_data.columns
     values = composition_data.sum(axis=0)
 
-    # Membuat Donut Chart
     fig, ax = plt.subplots(figsize=(10, 8), subplot_kw=dict(aspect="equal"))
-
-    # Membuat pie chart
     wedges, texts, autotexts = ax.pie(values, autopct='%1.1f%%', startangle=140, pctdistance=0.85, colors=plt.cm.Paired.colors)
 
-    # Buat lingkaran di tengah untuk menjadikan pie chart sebagai donut chart
     centre_circle = plt.Circle((0, 0), 0.70, fc='white')
     fig.gca().add_artist(centre_circle)
 
-    # Menambahkan legenda
     ax.legend(wedges, education_levels, title="Education Levels", loc="center left", bbox_to_anchor=(1, 0, 0.5, 1))
-
-    # Menambahkan judul
     plt.title('Customer Education Composition by Country')
 
     st.pyplot(fig)
 
-# Fungsi untuk membuat grafik keempat
+# Function to plot Product Category Name Count
 def plot_product_category_name_count(engine):
-    # Ambil data dari tabel dimproductcategory
     dimproductcategory_query = 'SELECT ProductCategoryKey, EnglishProductCategoryName FROM dimproductcategory'
     dimproductcategory = pd.read_sql(dimproductcategory_query, engine)
 
-    # Ambil data dari tabel dimcurrency
     dimcurrency_query = 'SELECT CurrencyKey, CurrencyName FROM dimcurrency'
     dimcurrency = pd.read_sql(dimcurrency_query, engine)
 
-    # Misalkan kita tambahkan data currency ke data product category secara acak hanya untuk visualisasi
-    np.random.seed(42)  # Untuk hasil yang konsisten
+    np.random.seed(42)
     random_currency = np.random.choice(dimcurrency['CurrencyName'], len(dimproductcategory))
     dimproductcategory['CurrencyName'] = random_currency
 
-    # Hitung jumlah produk berdasarkan kategori
     product_category_count = dimproductcategory['EnglishProductCategoryName'].value_counts().reset_index()
     product_category_count.columns = ['EnglishProductCategoryName', 'Count']
-
-    # Tambahkan CurrencyName ke data count
     product_category_count['CurrencyName'] = dimproductcategory.groupby('EnglishProductCategoryName')['CurrencyName'].first().values
 
-    # Membuat Bubble Plot
     plt.figure(figsize=(14, 10))
     bubble = plt.scatter(product_category_count['EnglishProductCategoryName'], 
                          product_category_count['Count'], 
@@ -172,8 +138,8 @@ def plot_product_category_name_count(engine):
 
     st.pyplot(plt)
 
-# Buat koneksi ke database menggunakan sqlalchemy
-db_connection_str = 'mysql+mysqlconnector://root:@localhost:3306/dump-dw_aw-202403050806'
+# Create a connection to the database using SQLAlchemy
+db_connection_str = f'mysql+mysqlconnector://{user}:{password}@{host}:{port}/{database}'
 engine = create_engine(db_connection_str)
 
 # Streamlit app
