@@ -173,7 +173,7 @@ def plot_product_category_name_count(engine):
     st.pyplot(plt)
 
 # Buat koneksi ke database menggunakan sqlalchemy
-db_connection_str = 'mysql+mysqlconnector://root:@localhost:3306/dump-dw_aw-202403050806''
+db_connection_str = 'mysql+mysqlconnector://root:@localhost:3306/dump-dw_aw-202403050806'
 engine = create_engine(db_connection_str)
 
 # Streamlit app
