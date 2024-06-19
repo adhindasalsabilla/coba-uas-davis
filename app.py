@@ -6,31 +6,27 @@ import mysql.connector
 from sqlalchemy import create_engine
 import numpy as np
 
-# Ekstrak informasi koneksi
+# Pastikan kita mendapatkan konfigurasi database dari secrets
+db_config = st.secrets["mysql"]
+user = db_config["user"]
+password = db_config["password"]
 host = db_config["host"]
 port = db_config["port"]
-user = secrets["db_username"]
-password = secrets["db_password"]
 database = db_config["database"]
-# =================================
-# user = st.secrets["db_username"]
-# password = st.secrets["db_password"]
-# host = st.secrets["mysql"]["host"]
-# port = st.secrets["mysql"]["port"]
-# database = st.secrets["mysql"]["database"]
 
+# Buat koneksi ke database menggunakan mysql.connector
 conn = mysql.connector.connect(
-        host=host,
-        port=int(port),
-        user=user,
-        password=password,
-        db=database
-    )
+    host=host,
+    port=int(port),
+    user=user,
+    password=password,
+    database=database
+)
 
 st.write("DB username:", user)
 st.write("DB password:", password)
 
-# Function to create the first chart
+# Fungsi untuk membuat grafik pertama
 def plot_standard_cost_per_product_per_month(engine):
     # Ambil data dari tabel dimproduct
     dimproduct_query = 'SELECT ProductKey, EnglishProductName, StandardCost FROM dimproduct'
@@ -73,7 +69,7 @@ def plot_standard_cost_per_product_per_month(engine):
     plt.xticks(rotation=45)
     st.pyplot(plt)
 
-# Function to create the second chart
+# Fungsi untuk membuat grafik kedua
 def plot_distribution_of_department_by_geography(engine):
     # Ambil data dari tabel dimemployee
     dimemployee_query = 'SELECT EmployeeKey, DepartmentName, Title FROM dimemployee'
@@ -99,7 +95,7 @@ def plot_distribution_of_department_by_geography(engine):
     plt.legend(title='Geography')
     st.pyplot(plt)
 
-# Function to create the third chart
+# Fungsi untuk membuat grafik ketiga
 def plot_customer_education_composition_by_country(engine):
     # Ambil data dari tabel dimcustomer
     dimcustomer_query = 'SELECT CustomerKey, EnglishEducation, GeographyKey FROM dimcustomer'
@@ -138,7 +134,7 @@ def plot_customer_education_composition_by_country(engine):
 
     st.pyplot(fig)
 
-# Function to create the fourth chart
+# Fungsi untuk membuat grafik keempat
 def plot_product_category_name_count(engine):
     # Ambil data dari tabel dimproductcategory
     dimproductcategory_query = 'SELECT ProductCategoryKey, EnglishProductCategoryName FROM dimproductcategory'
@@ -176,8 +172,8 @@ def plot_product_category_name_count(engine):
 
     st.pyplot(plt)
 
-# Buat koneksi ke database
-db_connection_str = 'mysql+mysqlconnector://root:@localhost:3306/dump-dw_aw-202403050806'
+# Buat koneksi ke database menggunakan sqlalchemy
+db_connection_str = 'mysql+mysqlconnector://root:@localhost:3306/dump-dw_aw-202403050806''
 engine = create_engine(db_connection_str)
 
 # Streamlit app
